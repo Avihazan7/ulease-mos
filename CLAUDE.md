@@ -40,7 +40,9 @@ package-lock.json
 ## Stack
 
 - **Next.js 15** (App Router) · **React 19** · JavaScript (לא TS) · Node ≥ 20 (לא נאכף — אין `engines`).
-- `app/layout.js` קובע `robots: { index: false }` ו-`themeColor: '#2563eb'` · `<html lang="en">`.
+- `app/layout.js` קובע `robots: { index: false }` ב-`export const metadata`, ו-`themeColor: '#2563eb'`
+  ב-`export const viewport` **נפרד** (Next 15 הוציא את `themeColor` מ-`metadata` — אל תחזיר אותו
+  לשם, זו אזהרת build) · `<html lang="en">` · `<body style={{ margin: 0 }}>`.
 - **שפת עיצוב:** Ultra Azure — משקף את `leasing-api/public/ulease-design-system.css`
   (קנבס לבן, גוון מותג אחד, צללים תלת-שכבתיים: contact + key + ambient). ה-CSS **מוטבע**
   ב-`page.js` כמחרוזת ומוזרק ב-`dangerouslySetInnerHTML` — אין קובץ `.css`, אין Tailwind.
@@ -69,7 +71,7 @@ npm run lint     # next lint — ⚠️ אין קונפיג ESLint בעץ; ב-Ne
   ותופעות-לוואי מוזרקים מה-host. אותו קלט → אותו פלט.
 - **Deal Score הוא קופסה שחורה.** מותר להציג ציון 0–100 ותווית דרגה. **אסור** לחשוף נוסחה,
   משקלים, ספים או את שמות רכיבי החישוב — בשום משטח פומבי. זה IP, לא החלטת UI.
-  (ראו `leasing-api/CLAUDE.md` → "חמשת כללי הקטלוג", כלל 5 · `brand-voice.md` §6.)
+  (ראו `leasing-api/CLAUDE.md` → "שבעת כללי הקטלוג", כלל 5 · `brand-voice.md` §6.)
 - **נתיב רכב נקרא, לעולם לא נבנה.** אם וכאשר הדף הזה יקשר לרכב — הוא קורא `canonical_path`
   מה-payload תו-בתו. בלי `slugify`, בלי שרשור סלאגים. בלי נתיב מוצהר → כרטיס בלי קישור.
 - **`noindex` הוא מכוון.** `layout.js` מסמן `robots: { index: false }`. אל תסיר את זה בלי
