@@ -40,7 +40,9 @@ package-lock.json
 ## Stack
 
 - **Next.js 15** (App Router) · **React 19** · JavaScript (לא TS) · Node ≥ 20 (לא נאכף — אין `engines`).
-- `app/layout.js` קובע `robots: { index: false }` ו-`themeColor: '#2563eb'` · `<html lang="en">`.
+- `app/layout.js` קובע `robots: { index: false }` ב-`export const metadata`, ו-`themeColor: '#2563eb'`
+  ב-`export const viewport` **נפרד** (Next 15 הוציא את `themeColor` מ-`metadata` — אל תחזיר אותו
+  לשם, זו אזהרת build) · `<html lang="en">` · `<body style={{ margin: 0 }}>`.
 - **שפת עיצוב:** Ultra Azure — משקף את `leasing-api/public/ulease-design-system.css`
   (קנבס לבן, גוון מותג אחד, צללים תלת-שכבתיים: contact + key + ambient). ה-CSS **מוטבע**
   ב-`page.js` כמחרוזת ומוזרק ב-`dangerouslySetInnerHTML` — אין קובץ `.css`, אין Tailwind.
