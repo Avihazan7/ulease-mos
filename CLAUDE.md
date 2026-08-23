@@ -15,25 +15,27 @@
 `ulease-mos` (package `ulease-mos`, `private: true`) — **עמוד סטטוס ממותג** ל-ULease Deal Score API.
 נכון להיום זהו **דף אחד**, סטטי לחלוטין, ותו לא.
 
-**מה קיים בעץ (ספירה מלאה — 6 קבצים במעקב git):**
+**מה קיים בעץ (ספירה מלאה — 7 קבצים במעקב git):**
 
 ```
 .gitignore
+CLAUDE.md           ← הקובץ הזה
 ULease API          ← קובץ יתום בן בית אחד (\n). שריד מיצירת הריפו.
-app/layout.js       ← metadata + robots: { index: false }
-app/page.js         ← CSS מוטבע + קומפוננטת Page אחת. אפס imports.
+app/layout.js       ← metadata + robots: { index: false } + viewport נפרד
+app/page.js         ← CSS מוטבע + קומפוננטת Page אחת. אפס imports. 113 שורות.
 package.json
 package-lock.json
 ```
 
-**מה שאין — ואל תניח שיש:** אין `next.config.*` · אין `tsconfig.json` (הריפו הוא **JavaScript**,
-לא TypeScript) · אין `app/api/` · אין טסטים · אין CI (`.github/` לא קיים) · אין `README.md` ·
-אין `.env.example` · אין חיבור DB · אין קריאת רשת אחת.
+**מה שאין — ואל תניח שיש:** אין `next.config.*` · אין `vercel.json` · אין `tsconfig.json`
+(הריפו הוא **JavaScript**, לא TypeScript) · אין `app/api/` · אין טסטים · אין CI
+(`.github/` לא קיים) · אין `README.md` · אין `.env.example` · אין חיבור DB · אין קריאת רשת אחת.
 
-> ⚠️ **הפער החשוב ביותר שצריך להכיר:** `package.json` מצהיר על 13 תלויות ריצה —
-> `@supabase/supabase-js` · `bullmq` · `ioredis` · `@upstash/ratelimit` · `@upstash/redis` ·
-> `@sentry/nextjs` · `@tanstack/react-query` · `zustand` · `zod` · `pino` · `date-fns` · `uuid` ·
-> `@t3-oss/env-nextjs` — ו**אף אחת מהן אינה מיובאת בשום מקום בקוד**. `app/` מכיל אפס `import`.
+> ⚠️ **הפער החשוב ביותר שצריך להכיר:** `package.json` מצהיר על 13 תלויות ריצה מעבר ל-
+> `next`/`react`/`react-dom` — `@supabase/supabase-js` · `bullmq` · `ioredis` ·
+> `@upstash/ratelimit` · `@upstash/redis` · `@sentry/nextjs` · `@tanstack/react-query` ·
+> `zustand` · `zod` · `pino` · `date-fns` · `uuid` · `@t3-oss/env-nextjs` —
+> ו**אף אחת מהן אינה מיובאת בשום מקום בקוד**. `app/` מכיל אפס `import`.
 > אלה תלויות-כוונה שהוצהרו מראש לשלבים הבאים, לא ארכיטקטורה קיימת. **אל תסיק מהן מבנה,
 > ואל תכתוב תיעוד שמתאר אותן כמיושמות.** מי שמפעיל אחת מהן בפועל — מפעיל אותה בפעם הראשונה.
 
@@ -47,8 +49,28 @@ package-lock.json
   (קנבס לבן, גוון מותג אחד, צללים תלת-שכבתיים: contact + key + ambient). ה-CSS **מוטבע**
   ב-`page.js` כמחרוזת ומוזרק ב-`dangerouslySetInnerHTML` — אין קובץ `.css`, אין Tailwind.
 
-## HOW — זרימות פיתוח
+## זרימת המערכת — הנדסית, טכנולוגית ותפעולית
 
+### איפה הריפו הזה יושב בזרימה
+```
+ulease-core  ──dist/──▶  leasing-api  ──HTTP──▶  web/ (חזית) ──▶ קונה
+ (קרנל טהור)   vendor     (API + DB + crons)
+                              │
+                              └──(סטטוס בלבד, ידני)──▶  ulease-mos  ← אתה כאן
+```
+`ulease-mos` הוא **קצה עלה**: הוא לא קורא מהמסד, לא קורא ל-API, לא מחשב ולא מחזיק state.
+כל מה שהוא מצהיר ("Phase 1 · Deterministic Engine — Active") הוא **טקסט שנכתב ביד** ולכן
+**מתיישן בשקט**. אין מנגנון שמסנכרן אותו — עדכון סטטוס הוא commit, לא feed.
+אם תתבקש להפוך אותו לסטטוס **חי**, זו הוספה של רשת ל-repo שהיום אין בו אף קריאת רשת:
+זו החלטה ארכיטקטונית, לא tweak. השאלה הראשונה היא **מה המקור** (health endpoint של
+`leasing-api`), ואיפה **נופלים סגור** כשאין תשובה.
+
+### זרימת הריצה (runtime)
+בקשה → Next 15 App Router → `app/layout.js` (metadata + `noindex`) → `app/page.js`
+(רנדר שרת של קומפוננטה אחת; ה-CSS נשלח כ-`<style>` מוטבע באותו document).
+**אין** middleware, אין route handlers, אין fetch, אין hydration של state — הדף כולו סטטי.
+
+### זרימת הבנייה והפריסה (build + deploy)
 ```bash
 npm install
 npm run dev      # next dev
@@ -56,6 +78,9 @@ npm run build    # next build — השער היחיד שקיים
 npm start        # next start
 npm run lint     # next lint — ⚠️ אין קונפיג ESLint בעץ; ב-Next 15 זו הרצה ראשונה שתבקש הגדרה
 ```
+אין `vercel.json` בעץ — הפריסה נשענת על זיהוי Next.js אוטומטי בצד הפלטפורמה, ולכן
+**הגדרות הפריסה אינן בגרסה**. לפני שאתה טוען משהו על הפריסה, בדוק בפלטפורמה; הריפו
+לבדו לא יודע לענות.
 
 **לפני commit:** `npm run build`. זו הבדיקה האוטומטית **היחידה** שהריפו מחזיק — אין טסטים
 ואין CI, ולכן build שעובר הוא כל מה שיש. אל תדווח "אמור לעבוד" בלי להריץ אותו.
@@ -99,7 +124,7 @@ leasing-api-co-il   שכבת ה-OS/עסק — זהות, החלטות, תיקי �
 
 ## תחזוקת הקובץ הזה
 
-עדכן אותו **באותו PR** שמשנה את המבנה. שלושה טריגרים לעדכון מיידי:
+עדכן אותו **באותו PR** שמשנה את המבנה. ארבעה טריגרים לעדכון מיידי:
 תלות מוצהרת עוברת לשימוש בפועל (מוחקים אותה מרשימת "הפער" למעלה) · נוסף `app/api/` או חיבור
-נתונים · נוסף שער אוטומטי (טסטים/CI). **הפנה, אל תשכפל** — `package.json` הוא מקור-האמת
-לתלויות ולסקריפטים.
+נתונים · נוסף שער אוטומטי (טסטים/CI) · נוסף קובץ פריסה (`vercel.json` / `next.config.*`).
+**הפנה, אל תשכפל** — `package.json` הוא מקור-האמת לתלויות ולסקריפטים.
