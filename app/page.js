@@ -71,9 +71,16 @@ const css = `
   }
   .chip .dot {
     width: 7px; height: 7px; border-radius: 50%;
-    background: #16a34a;
-    box-shadow: 0 0 0 3px rgba(22, 163, 74, .15);
+    background: var(--azure-400);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, .18);
   }
+  .declared {
+    margin: 18px 0 0;
+    color: var(--slate-500);
+    font-size: .78rem;
+    line-height: 1.65;
+  }
+  .declared b { color: var(--slate-600); }
   .rule {
     height: 1px; border: 0; margin: 26px 0;
     background: linear-gradient(90deg, transparent, var(--azure-300) 30%, var(--azure-300) 70%, transparent);
@@ -96,9 +103,15 @@ export default function Page() {
             Transparent scoring — same input, same output, every time.
           </p>
           <div className="chips">
-            <span className="chip"><span className="dot" aria-hidden="true" />Phase 1 · Deterministic Engine — Active</span>
+            <span className="chip"><span className="dot" aria-hidden="true" />Phase 1 · Deterministic Engine</span>
             <span className="chip">OS U.M.M Kernel</span>
           </div>
+          <p className="declared">
+            <b>This page is a declaration, not a health probe.</b> It performs no
+            network call and reads no live state, so it cannot report an outage.
+            Reviewed by hand on <b>2026-08-25</b>. For live service state, ask the
+            API itself.
+          </p>
           <hr className="rule" />
           <p className="doctrine">
             <b>Doctrine:</b> pure engines, no side effects — timestamps and I/O are
